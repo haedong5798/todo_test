@@ -22,12 +22,13 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 
 interface CalendarProps {
   onSelectDate: (date: Date) => void;
+  selectedDate: Date;
 }
 
-export default function Calendar({ onSelectDate }: CalendarProps) {
+export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
-  const [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'));
+  const [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy', new Date()));
   const firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date());
 
   const days = eachDayOfInterval({
@@ -48,6 +49,54 @@ export default function Calendar({ onSelectDate }: CalendarProps) {
   const handleDateClick = (day: Date) => {
     setSelectedDay(day);
     onSelectDate(day);
+  };
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days = [];
+    
+    // 이전 달의 날짜들을 채움
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      const prevDate = new Date(year, month, -i);
+      days.unshift(prevDate);
+    }
+    
+    // 현재 달의 날짜들을 채움
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    // 다음 달의 날짜들을 채워서 총 42개(6주)로 맞춤
+    const remainingDays = 42 - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push(new Date(year, month + 1, i));
+    }
+    
+    return days;
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const isSelectedDate = (date: Date) => {
+    return date.toDateString() === selectedDate.toDateString();
+  };
+
+  const isCurrentMonth = (date: Date) => {
+    return date.getMonth() === currentMonth.getMonth();
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
   };
 
   return (
@@ -85,7 +134,7 @@ export default function Calendar({ onSelectDate }: CalendarProps) {
             <div>토</div>
           </div>
           <div className="grid grid-cols-7 mt-2 text-sm">
-            {days.map((day, dayIdx) => {
+            {getDaysInMonth(currentMonth).map((day, dayIdx) => {
               const firstDayOfMonth = dayIdx === 0;
               const dayOfWeek = getDay(day);
 

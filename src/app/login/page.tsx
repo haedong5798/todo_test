@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SignupModal from '../components/SignupModal';
+import FindAccountModal from '../components/FindAccountModal';
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const [isFindAccountModalOpen, setIsFindAccountModalOpen] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +74,32 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+
+        <div className="flex justify-between text-sm">
+          <button
+            onClick={() => setIsSignupModalOpen(true)}
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            회원가입
+          </button>
+          <button
+            onClick={() => setIsFindAccountModalOpen(true)}
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            아이디/비밀번호 찾기
+          </button>
+        </div>
       </div>
+
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+      />
+      
+      <FindAccountModal
+        isOpen={isFindAccountModalOpen}
+        onClose={() => setIsFindAccountModalOpen(false)}
+      />
     </div>
   );
 } 

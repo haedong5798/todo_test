@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Calendar from '../components/Calendar';
 import ScheduleList from '../components/Schedule';
 
@@ -23,6 +23,15 @@ const DUMMY_SCHEDULES = [
 export default function TodosPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [schedules, setSchedules] = useState(DUMMY_SCHEDULES);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -31,14 +40,31 @@ export default function TodosPage() {
     setSchedules(filteredSchedules);
   };
 
+  const handleTodayClick = () => {
+    setSelectedDate(new Date());
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6">
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
-          일정 관리
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">
+            일정 관리
+          </h1>
+          <div className="flex items-center space-x-4">
+            <div className="text-gray-600">
+              {currentTime.toLocaleTimeString('ko-KR')}
+            </div>
+            <button
+              onClick={handleTodayClick}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              오늘
+            </button>
+          </div>
+        </div>
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <Calendar onSelectDate={handleDateSelect} />
+          <Calendar onSelectDate={handleDateSelect} selectedDate={selectedDate} />
           <ScheduleList selectedDate={selectedDate} schedules={schedules} />
         </div>
       </div>
