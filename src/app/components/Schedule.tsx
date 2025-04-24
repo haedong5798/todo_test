@@ -7,7 +7,6 @@ import type { ScheduleData } from './AddScheduleModal';
 interface ScheduleListProps {
   selectedDate: Date;
   schedules: ScheduleData[];
-  onDelete: () => void;
   selectedScheduleId: string | null;
   onScheduleSelect: (id: string) => void;
 }
@@ -15,7 +14,6 @@ interface ScheduleListProps {
 export default function ScheduleList({
   selectedDate,
   schedules,
-  onDelete,
   selectedScheduleId,
   onScheduleSelect,
 }: ScheduleListProps) {

@@ -6,22 +6,6 @@ import ScheduleList from '../components/Schedule';
 import AddScheduleModal from '../components/AddScheduleModal';
 import type { ScheduleData } from '../components/AddScheduleModal';
 
-// 임시 데이터
-const DUMMY_SCHEDULES = [
-  {
-    id: '1',
-    title: '팀 미팅',
-    time: '09:00',
-    description: '주간 업무 리뷰 미팅',
-  },
-  {
-    id: '2',
-    title: '점심 약속',
-    time: '12:30',
-    description: '동료들과 점심 식사',
-  },
-];
-
 export default function TodosPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [schedules, setSchedules] = useState<ScheduleData[]>([]);
@@ -107,7 +91,6 @@ export default function TodosPage() {
             <ScheduleList
               selectedDate={selectedDate}
               schedules={schedules}
-              onDelete={handleDeleteSchedule}
               selectedScheduleId={selectedScheduleId}
               onScheduleSelect={handleScheduleSelect}
             />
