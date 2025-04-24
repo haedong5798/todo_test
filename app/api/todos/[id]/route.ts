@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 import { authOptions } from '../../../lib/auth';
@@ -6,8 +6,8 @@ import { authOptions } from '../../../lib/auth';
 const prisma = new PrismaClient();
 
 export async function PATCH(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,12 +16,12 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await req.json();
     const { completed } = body;
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: context.params.id,
+        id: params.id,
       },
       include: {
         user: true,
@@ -38,7 +38,7 @@ export async function PATCH(
 
     const updatedTodo = await prisma.todo.update({
       where: {
-        id: context.params.id,
+        id: params.id,
       },
       data: {
         completed,
@@ -53,8 +53,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,7 +65,7 @@ export async function DELETE(
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: context.params.id,
+        id: params.id,
       },
       include: {
         user: true,
@@ -82,7 +82,7 @@ export async function DELETE(
 
     await prisma.todo.delete({
       where: {
-        id: context.params.id,
+        id: params.id,
       },
     });
 
