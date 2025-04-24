@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
+export async function DELETE(request: Request, props: Props) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -18,7 +21,7 @@ export async function DELETE(
 
     const post = await prisma.post.findUnique({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
       include: {
         user: true,
@@ -35,7 +38,7 @@ export async function DELETE(
 
     await prisma.post.delete({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
     });
 

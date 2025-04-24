@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
+export async function PATCH(request: Request, props: Props) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -21,7 +24,7 @@ export async function PATCH(
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
       include: {
         user: true,
@@ -38,7 +41,7 @@ export async function PATCH(
 
     const updatedTodo = await prisma.todo.update({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
       data: {
         completed,
@@ -52,10 +55,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: Props) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -65,7 +65,7 @@ export async function DELETE(
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
       include: {
         user: true,
@@ -82,7 +82,7 @@ export async function DELETE(
 
     await prisma.todo.delete({
       where: {
-        id: params.id,
+        id: props.params.id,
       },
     });
 
