@@ -10,7 +10,6 @@ import {
   isEqual,
   isSameMonth,
   isToday as isDateToday,
-  parse,
   startOfToday,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -27,7 +26,6 @@ interface CalendarProps {
 
 export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) {
   const today = startOfToday();
-  const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(today);
 
   const days = eachDayOfInterval({
@@ -42,11 +40,6 @@ export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) 
   function nextMonth() {
     setCurrentMonth(add(currentMonth, { months: 1 }));
   }
-
-  const handleDateClick = (day: Date) => {
-    setSelectedDay(day);
-    onSelectDate(day);
-  };
 
   return (
     <div className="w-full max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6">
@@ -97,24 +90,24 @@ export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) 
                 >
                   <button
                     type="button"
-                    onClick={() => handleDateClick(day)}
+                    onClick={() => onSelectDate(day)}
                     className={classNames(
-                      isEqual(day, selectedDay) ? 'text-white' : '',
-                      !isEqual(day, selectedDay) && isDateToday(day) ? 'text-red-500' : '',
-                      !isEqual(day, selectedDay) &&
+                      isEqual(day, selectedDate) ? 'text-white' : '',
+                      !isEqual(day, selectedDate) && isDateToday(day) ? 'text-red-500' : '',
+                      !isEqual(day, selectedDate) &&
                         !isDateToday(day) &&
                         isSameMonth(day, currentMonth)
                         ? 'text-gray-900'
                         : '',
-                      !isEqual(day, selectedDay) &&
+                      !isEqual(day, selectedDate) &&
                         !isDateToday(day) &&
                         !isSameMonth(day, currentMonth)
                         ? 'text-gray-400'
                         : '',
-                      isEqual(day, selectedDay) && isDateToday(day) ? 'bg-red-500' : '',
-                      isEqual(day, selectedDay) && !isDateToday(day) ? 'bg-gray-900' : '',
-                      !isEqual(day, selectedDay) ? 'hover:bg-gray-200' : '',
-                      (isEqual(day, selectedDay) || isDateToday(day))
+                      isEqual(day, selectedDate) && isDateToday(day) ? 'bg-red-500' : '',
+                      isEqual(day, selectedDate) && !isDateToday(day) ? 'bg-gray-900' : '',
+                      !isEqual(day, selectedDate) ? 'hover:bg-gray-200' : '',
+                      (isEqual(day, selectedDate) || isDateToday(day))
                         ? 'font-semibold'
                         : '',
                       'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
