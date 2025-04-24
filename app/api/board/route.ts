@@ -2,8 +2,21 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+}
+
+interface CreatePostBody {
+  title: string;
+  content: string;
+}
+
 // 임시 데이터 저장소 (나중에 데이터베이스로 대체)
-let posts: any[] = [];
+let posts: Post[] = [];
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -22,7 +35,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body = await request.json() as CreatePostBody;
   const newPost = {
     id: Date.now().toString(),
     title: body.title,

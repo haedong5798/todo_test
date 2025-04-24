@@ -2,8 +2,22 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  userId: string | undefined;
+}
+
+interface CreateEventBody {
+  title: string;
+  date: string;
+  description: string;
+}
+
 // 임시 데이터 저장소 (나중에 데이터베이스로 대체)
-let events: any[] = [];
+let events: CalendarEvent[] = [];
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -22,13 +36,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body = await request.json() as CreateEventBody;
   const newEvent = {
     id: Date.now().toString(),
     title: body.title,
     date: body.date,
     description: body.description,
-    userId: session.user?.email,
+    userId: session.user?.email || undefined,
   };
 
   events.push(newEvent);
