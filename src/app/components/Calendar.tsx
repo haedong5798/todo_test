@@ -16,7 +16,7 @@ import {
 import { ko } from 'date-fns/locale';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
-function classNames(...classes: string[]) {
+function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
@@ -93,7 +93,7 @@ export default function Calendar({ onSelectDate }: CalendarProps) {
                 <div
                   key={day.toString()}
                   className={classNames(
-                    firstDayOfMonth && `col-start-${dayOfWeek + 1}`,
+                    firstDayOfMonth ? `col-start-${dayOfWeek + 1}` : '',
                     'py-2'
                   )}
                 >
@@ -101,21 +101,24 @@ export default function Calendar({ onSelectDate }: CalendarProps) {
                     type="button"
                     onClick={() => handleDateClick(day)}
                     className={classNames(
-                      isEqual(day, selectedDay) && 'text-white',
-                      !isEqual(day, selectedDay) && isToday(day) && 'text-red-500',
+                      isEqual(day, selectedDay) ? 'text-white' : '',
+                      !isEqual(day, selectedDay) && isToday(day) ? 'text-red-500' : '',
                       !isEqual(day, selectedDay) &&
                         !isToday(day) &&
-                        isSameMonth(day, firstDayCurrentMonth) &&
-                        'text-gray-900',
+                        isSameMonth(day, firstDayCurrentMonth)
+                        ? 'text-gray-900'
+                        : '',
                       !isEqual(day, selectedDay) &&
                         !isToday(day) &&
-                        !isSameMonth(day, firstDayCurrentMonth) &&
-                        'text-gray-400',
-                      isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
-                      isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900',
-                      !isEqual(day, selectedDay) && 'hover:bg-gray-200',
-                      (isEqual(day, selectedDay) || isToday(day)) &&
-                        'font-semibold',
+                        !isSameMonth(day, firstDayCurrentMonth)
+                        ? 'text-gray-400'
+                        : '',
+                      isEqual(day, selectedDay) && isToday(day) ? 'bg-red-500' : '',
+                      isEqual(day, selectedDay) && !isToday(day) ? 'bg-gray-900' : '',
+                      !isEqual(day, selectedDay) ? 'hover:bg-gray-200' : '',
+                      (isEqual(day, selectedDay) || isToday(day))
+                        ? 'font-semibold'
+                        : '',
                       'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                     )}
                   >

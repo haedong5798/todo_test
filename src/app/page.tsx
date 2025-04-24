@@ -26,7 +26,9 @@ export default function Home() {
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    // 여기에서 해당 날짜의 일정을 불러오는 로직을 추가할 수 있습니다
+    // 선택된 날짜에 따라 일정을 필터링
+    const filteredSchedules = DUMMY_SCHEDULES.filter(() => Math.random() > 0.5); // 임시로 랜덤하게 필터링
+    setSchedules(filteredSchedules);
   };
 
   return (
