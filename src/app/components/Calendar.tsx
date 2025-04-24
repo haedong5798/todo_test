@@ -66,19 +66,20 @@ export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) 
               <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
-          <div className="grid grid-cols-7 mt-10 text-xs leading-6 text-center text-gray-500">
-            <div>일</div>
+          <div className="grid grid-cols-7 mt-4 text-sm font-medium text-center text-gray-500">
+            <div className="text-red-500">일</div>
             <div>월</div>
             <div>화</div>
             <div>수</div>
             <div>목</div>
             <div>금</div>
-            <div>토</div>
+            <div className="text-blue-500">토</div>
           </div>
           <div className="grid grid-cols-7 mt-2 text-sm">
             {days.map((day, dayIdx) => {
               const firstDayOfMonth = dayIdx === 0;
               const dayOfWeek = getDay(day);
+              const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
               return (
                 <div
@@ -97,7 +98,11 @@ export default function Calendar({ onSelectDate, selectedDate }: CalendarProps) 
                       !isEqual(day, selectedDate) &&
                         !isDateToday(day) &&
                         isSameMonth(day, currentMonth)
-                        ? 'text-gray-900'
+                        ? isWeekend 
+                          ? dayOfWeek === 0 
+                            ? 'text-red-500' 
+                            : 'text-blue-500'
+                          : 'text-gray-900'
                         : '',
                       !isEqual(day, selectedDate) &&
                         !isDateToday(day) &&

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 
 interface AddScheduleModalProps {
@@ -24,6 +24,17 @@ export default function AddScheduleModal({ isOpen, onClose, onSave, selectedDate
     title: '',
     description: '',
   });
+
+  // Reset form data when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        time: '09:00',
+        title: '',
+        description: '',
+      });
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
