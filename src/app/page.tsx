@@ -1,47 +1,46 @@
 'use client';
 
-import { useState } from 'react';
-import Calendar from './components/Calendar';
-import ScheduleList from './components/Schedule';
-
-// 임시 데이터
-const DUMMY_SCHEDULES = [
-  {
-    id: '1',
-    title: '팀 미팅',
-    time: '09:00',
-    description: '주간 업무 리뷰 미팅',
-  },
-  {
-    id: '2',
-    title: '점심 약속',
-    time: '12:30',
-    description: '동료들과 점심 식사',
-  },
-];
+import Link from 'next/link';
 
 export default function Home() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [schedules, setSchedules] = useState(DUMMY_SCHEDULES);
-
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    // 선택된 날짜에 따라 일정을 필터링
-    const filteredSchedules = DUMMY_SCHEDULES.filter(() => Math.random() > 0.5); // 임시로 랜덤하게 필터링
-    setSchedules(filteredSchedules);
-  };
-
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6">
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
-          일정 관리
+    <div className="min-h-screen bg-gradient-to-b from-indigo-500 to-purple-600 flex flex-col items-center justify-center text-white px-4">
+      <div className="max-w-3xl text-center space-y-8">
+        <h1 className="text-5xl font-bold mb-8">
+          효율적인 일정 관리의 시작
         </h1>
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <Calendar onSelectDate={handleDateSelect} />
-          <ScheduleList selectedDate={selectedDate} schedules={schedules} />
+        
+        <div className="space-y-6 text-lg">
+          <p className="leading-relaxed">
+            체계적인 일정 관리로 더 생산적인 하루를 만들어보세요.
+            우리의 할 일 관리 시스템은 당신의 시간을 더욱 가치있게 만들어줍니다.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="p-6 bg-white bg-opacity-10 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">간편한 일정 등록</h3>
+              <p className="text-gray-100">클릭 한 번으로 빠르게 일정을 등록하고 관리하세요.</p>
+            </div>
+            
+            <div className="p-6 bg-white bg-opacity-10 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">직관적인 인터페이스</h3>
+              <p className="text-gray-100">누구나 쉽게 사용할 수 있는 깔끔한 디자인을 제공합니다.</p>
+            </div>
+            
+            <div className="p-6 bg-white bg-opacity-10 rounded-lg">
+              <h3 className="text-xl font-semibold mb-3">효율적인 시간 관리</h3>
+              <p className="text-gray-100">우선순위 설정으로 중요한 일정을 놓치지 마세요.</p>
+            </div>
+          </div>
         </div>
+
+        <Link 
+          href="/login" 
+          className="inline-block mt-8 px-8 py-3 text-lg font-semibold bg-white text-indigo-600 rounded-full hover:bg-gray-100 transition-colors duration-200"
+        >
+          시작하기
+        </Link>
       </div>
-    </main>
+    </div>
   );
 }
