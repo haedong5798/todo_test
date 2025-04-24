@@ -5,13 +5,10 @@ import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
-export async function PATCH(request: Request, props: Props) {
+export async function PATCH(
+  request: Request,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -24,7 +21,7 @@ export async function PATCH(request: Request, props: Props) {
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
       include: {
         user: true,
@@ -41,7 +38,7 @@ export async function PATCH(request: Request, props: Props) {
 
     const updatedTodo = await prisma.todo.update({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
       data: {
         completed,
@@ -55,7 +52,10 @@ export async function PATCH(request: Request, props: Props) {
   }
 }
 
-export async function DELETE(request: Request, props: Props) {
+export async function DELETE(
+  request: Request,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -65,7 +65,7 @@ export async function DELETE(request: Request, props: Props) {
 
     const todo = await prisma.todo.findUnique({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
       include: {
         user: true,
@@ -82,7 +82,7 @@ export async function DELETE(request: Request, props: Props) {
 
     await prisma.todo.delete({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
     });
 

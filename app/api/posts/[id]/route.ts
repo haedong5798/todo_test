@@ -5,13 +5,10 @@ import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
-export async function DELETE(request: Request, props: Props) {
+export async function DELETE(
+  request: Request,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -21,7 +18,7 @@ export async function DELETE(request: Request, props: Props) {
 
     const post = await prisma.post.findUnique({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
       include: {
         user: true,
@@ -38,7 +35,7 @@ export async function DELETE(request: Request, props: Props) {
 
     await prisma.post.delete({
       where: {
-        id: props.params.id,
+        id: context.params.id,
       },
     });
 
