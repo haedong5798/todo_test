@@ -2,41 +2,55 @@
 
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-
-interface Schedule {
-  id: string;
-  title: string;
-  time: string;
-  description: string;
-}
+import type { ScheduleData } from './AddScheduleModal';
 
 interface ScheduleListProps {
   selectedDate: Date;
-  schedules: Schedule[];
+  schedules: ScheduleData[];
+  onDelete: () => void;
+  selectedScheduleId: string | null;
+  onScheduleSelect: (id: string) => void;
 }
 
-export default function ScheduleList({ selectedDate, schedules }: ScheduleListProps) {
+export default function ScheduleList({
+  selectedDate,
+  schedules,
+  onDelete,
+  selectedScheduleId,
+  onScheduleSelect,
+}: ScheduleListProps) {
+  const filteredSchedules = schedules.filter(
+    (schedule) => format(schedule.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
+  );
+
   return (
-    <div className="mt-8 px-4 sm:px-7">
-      <h2 className="text-lg font-semibold text-gray-900">
-        {format(selectedDate, 'yyyy년 M월 d일 일정', { locale: ko })}
-      </h2>
-      <div className="mt-4 space-y-4">
-        {schedules.length === 0 ? (
-          <p className="text-gray-500">등록된 일정이 없습니다.</p>
+    <div className="mt-6">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">
+        {format(selectedDate, 'yyyy년 MM월 dd일', { locale: ko })} 일정
+      </h3>
+      <div className="space-y-3">
+        {filteredSchedules.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">등록된 일정이 없습니다.</p>
         ) : (
-          schedules.map((schedule) => (
+          filteredSchedules.map((schedule) => (
             <div
               key={schedule.id}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+              className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                selectedScheduleId === schedule.id
+                  ? 'border-indigo-500 bg-indigo-50'
+                  : 'border-gray-200 hover:border-indigo-300'
+              }`}
+              onClick={() => onScheduleSelect(schedule.id)}
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-medium text-gray-900">
-                  {schedule.title}
-                </h3>
-                <span className="text-sm text-gray-500">{schedule.time}</span>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-medium text-gray-900">{schedule.title}</h4>
+                  <p className="text-sm text-gray-500 mt-1">{schedule.time}</p>
+                </div>
               </div>
-              <p className="mt-2 text-sm text-gray-600">{schedule.description}</p>
+              {schedule.description && (
+                <p className="text-gray-600 text-sm mt-2">{schedule.description}</p>
+              )}
             </div>
           ))
         )}

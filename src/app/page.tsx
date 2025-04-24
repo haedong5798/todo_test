@@ -19,17 +19,17 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <div className="p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg">
               <h3 className="text-xl font-semibold mb-3 text-white">간편한 일정 등록</h3>
-              <p className="text-white">클릭 한 번으로 빠르게 일정을 등록하고 관리하세요.</p>
+              <p className="text-[#A465FD]">클릭 한 번으로 빠르게 일정을 등록하고 관리하세요.</p>
             </div>
             
             <div className="p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg">
               <h3 className="text-xl font-semibold mb-3 text-white">직관적인 인터페이스</h3>
-              <p className="text-white">누구나 쉽게 사용할 수 있는 깔끔한 디자인을 제공합니다.</p>
+              <p className="text-[#A465FD]">누구나 쉽게 사용할 수 있는 깔끔한 디자인을 제공합니다.</p>
             </div>
             
             <div className="p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg">
               <h3 className="text-xl font-semibold mb-3 text-white">효율적인 시간 관리</h3>
-              <p className="text-white">우선순위 설정으로 중요한 일정을 놓치지 마세요.</p>
+              <p className="text-[#A465FD]">우선순위 설정으로 중요한 일정을 놓치지 마세요.</p>
             </div>
           </div>
         </div>
