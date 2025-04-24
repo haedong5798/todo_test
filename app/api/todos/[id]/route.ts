@@ -5,9 +5,13 @@ import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
+interface RouteParams {
+  id: string;
+}
+
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +20,7 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { completed } = body;
 
     const todo = await prisma.todo.findUnique({
@@ -53,8 +57,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions);

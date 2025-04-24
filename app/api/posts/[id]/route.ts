@@ -5,9 +5,13 @@ import { authOptions } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
+interface RouteParams {
+  id: string;
+}
+
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const session = await getServerSession(authOptions);
