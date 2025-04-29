@@ -1,109 +1,150 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Calendar from '../components/Calendar';
-import ScheduleList from '../components/Schedule';
-import AddScheduleModal from '../components/AddScheduleModal';
-import type { ScheduleData } from '../components/AddScheduleModal';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
+import { useRouter } from 'next/navigation';
 
 export default function TodosPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [schedules, setSchedules] = useState<ScheduleData[]>([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+    const [todos, setTodos] = useState([]);
+    const [newTodo, setNewTodo] = useState('');
+    const [user, setUser] = useState(null);
+    const router = useRouter();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    useEffect(() => {
+        checkUser();
+        fetchTodos();
+    }, []);
 
-    return () => clearInterval(timer);
-  }, []);
+    const checkUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            router.push('/');
+            return;
+        }
+        setUser(user);
+    };
 
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-  };
+    const fetchTodos = async () => {
+        const { data, error } = await supabase
+            .from('todos')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-  const handleTodayClick = () => {
-    setSelectedDate(new Date());
-  };
+        if (error) {
+            console.error('Error fetching todos:', error);
+            return;
+        }
 
-  const handleAddSchedule = (schedule: ScheduleData) => {
-    setSchedules([...schedules, schedule]);
-  };
+        setTodos(data || []);
+    };
 
-  const handleDeleteSchedule = () => {
-    if (selectedScheduleId) {
-      setSchedules(schedules.filter(schedule => schedule.id !== selectedScheduleId));
-      setSelectedScheduleId(null);
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!newTodo.trim()) return;
 
-  const handleScheduleSelect = (id: string) => {
-    setSelectedScheduleId(id);
-  };
+        const { error } = await supabase
+            .from('todos')
+            .insert([
+                {
+                    content: newTodo,
+                    user_id: user.id,
+                    is_completed: false
+                }
+            ]);
 
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            일정 관리
-          </h1>
-          <div className="flex items-center space-x-4">
-            <div className="text-gray-600">
-              {currentTime.toLocaleTimeString('ko-KR')}
-            </div>
-            <button
-              onClick={handleTodayClick}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              오늘
-            </button>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <Calendar onSelectDate={handleDateSelect} selectedDate={selectedDate} />
-          <div className="mt-6 border-t pt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">일정 목록</h2>
-              <div className="flex space-x-2">
+        if (error) {
+            console.error('Error creating todo:', error);
+            return;
+        }
+
+        setNewTodo('');
+        fetchTodos();
+    };
+
+    const toggleTodo = async (id, is_completed) => {
+        const { error } = await supabase
+            .from('todos')
+            .update({ is_completed: !is_completed })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error updating todo:', error);
+            return;
+        }
+
+        fetchTodos();
+    };
+
+    const deleteTodo = async (id) => {
+        const { error } = await supabase
+            .from('todos')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting todo:', error);
+            return;
+        }
+
+        fetchTodos();
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto p-6">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold">할 일 목록</h1>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => supabase.auth.signOut()}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 >
-                  +
+                    로그아웃
                 </button>
-                <button
-                  onClick={handleDeleteSchedule}
-                  disabled={!selectedScheduleId}
-                  className={`p-2 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
-                    selectedScheduleId
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-red-300 cursor-not-allowed'
-                  }`}
-                >
-                  -
-                </button>
-              </div>
             </div>
-            <ScheduleList
-              selectedDate={selectedDate}
-              schedules={schedules}
-              selectedScheduleId={selectedScheduleId}
-              onScheduleSelect={handleScheduleSelect}
-            />
-          </div>
-        </div>
-      </div>
 
-      <AddScheduleModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddSchedule}
-        selectedDate={selectedDate}
-      />
-    </main>
-  );
+            <form onSubmit={handleSubmit} className="mb-8">
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newTodo}
+                        onChange={(e) => setNewTodo(e.target.value)}
+                        placeholder="새로운 할 일을 입력하세요..."
+                        className="flex-1 p-2 border rounded-md"
+                    />
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                        추가
+                    </button>
+                </div>
+            </form>
+
+            <div className="space-y-2">
+                {todos.map((todo) => (
+                    <div
+                        key={todo.id}
+                        className="flex items-center justify-between p-4 bg-white border rounded-lg"
+                    >
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                checked={todo.is_completed}
+                                onChange={() => toggleTodo(todo.id, todo.is_completed)}
+                                className="w-5 h-5"
+                            />
+                            <span className={todo.is_completed ? 'line-through text-gray-500' : ''}>
+                                {todo.content}
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => deleteTodo(todo.id)}
+                            className="px-3 py-1 text-red-500 hover:text-red-700"
+                        >
+                            삭제
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 } 
