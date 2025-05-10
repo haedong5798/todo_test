@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'react-calendar/dist/Calendar.css';
+
+@import "tailwindcss";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -25,4 +29,59 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 달력 스타일 */
+.react-calendar {
+  width: 100%;
+  border: none;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.react-calendar__tile {
+  padding: 1em 0.5em;
+  background: none;
+  text-align: center;
+  line-height: 16px;
+}
+
+.react-calendar__tile--now {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+.react-calendar__tile--active {
+  background: #006edc;
+  color: white;
+  border-radius: 6px;
+}
+
+/* 주말 및 공휴일 스타일 */
+.react-calendar__tile.saturday {
+  color: #0000ff;
+}
+
+.react-calendar__tile.sunday,
+.react-calendar__tile.holiday {
+  color: #ff0000;
+}
+
+/* 요일 헤더 스타일 */
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: none;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5em;
+}
+
+.react-calendar__month-view__weekdays__weekday:nth-child(1) {
+  color: #ff0000;
+}
+
+.react-calendar__month-view__weekdays__weekday:nth-child(7) {
+  color: #0000ff;
 }

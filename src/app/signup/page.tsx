@@ -4,21 +4,27 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function Home() {
+export default function SignUp() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'user' | 'admin'>('user');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -26,18 +32,20 @@ export default function Home() {
       if (error) throw error;
 
       if (data.user) {
-        // 사용자 프로필 확인
-        const { data: profile } = await supabase
+        // 프로필 생성
+        const { error: profileError } = await supabase
           .from('profiles')
-          .select('is_admin')
-          .eq('id', data.user.id)
-          .single();
+          .insert([
+            {
+              id: data.user.id,
+              email: data.user.email,
+              is_admin: false,
+            },
+          ]);
 
-        if (activeTab === 'admin' && !profile?.is_admin) {
-          throw new Error('관리자 권한이 없습니다.');
-        }
+        if (profileError) throw profileError;
 
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (error: any) {
       setError(error.message);
@@ -48,35 +56,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 로그인 섹션 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-          {/* 탭 메뉴 */}
-          <div className="flex border-b mb-8">
-            <button
-              className={`flex-1 px-4 py-2 font-medium text-center ${
-                activeTab === 'user'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500'
-              }`}
-              onClick={() => setActiveTab('user')}
-            >
-              일반 로그인
-            </button>
-            <button
-              className={`flex-1 px-4 py-2 font-medium text-center ${
-                activeTab === 'admin'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500'
-              }`}
-              onClick={() => setActiveTab('admin')}
-            >
-              관리자 로그인
-            </button>
-          </div>
+          <h2 className="text-2xl font-bold text-center mb-8">회원가입</h2>
 
-          {/* 로그인 폼 */}
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSignUp} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
                 {error}
@@ -114,6 +98,21 @@ export default function Home() {
             </div>
 
             <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                비밀번호 확인
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="비밀번호를 다시 입력하세요"
+              />
+            </div>
+
+            <div>
               <button
                 type="submit"
                 disabled={loading}
@@ -121,17 +120,17 @@ export default function Home() {
                   loading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {loading ? '로그인 중...' : '로그인'}
+                {loading ? '가입 중...' : '회원가입'}
               </button>
             </div>
 
             <div className="text-center">
               <button
                 type="button"
-                onClick={() => router.push('/signup')}
+                onClick={() => router.push('/')}
                 className="text-sm text-blue-600 hover:text-blue-500"
               >
-                회원가입
+                로그인으로 돌아가기
               </button>
             </div>
           </form>
@@ -139,4 +138,4 @@ export default function Home() {
       </div>
     </div>
   );
-}
+} 
