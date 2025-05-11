@@ -21,10 +21,6 @@ type Comment = Database['public']['Tables']['comments']['Row'] & {
   };
 };
 
-interface Profile {
-  nickname: string;
-}
-
 export default function PostDetail({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
