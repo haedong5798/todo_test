@@ -7,27 +7,22 @@ import Link from 'next/link';
 import { User } from '@supabase/supabase-js';
 import { AuthError } from '@supabase/supabase-js';
 import { PostgrestError } from '@supabase/supabase-js';
+import type { Database } from '@/lib/database.types';
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  created_at: string;
-  user_id: string;
+type Post = Database['public']['Tables']['posts']['Row'] & {
   author: {
     nickname: string;
   };
-}
+};
 
-interface Comment {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: string;
-  post_id: string;
+type Comment = Database['public']['Tables']['comments']['Row'] & {
   author: {
     nickname: string;
   };
+};
+
+interface Profile {
+  nickname: string;
 }
 
 export default function PostDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -54,7 +49,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
         // 게시글 정보 가져오기
         const { data: postData, error: postError } = await supabase
           .from('posts')
-          .select('*')
+          .select()
           .eq('id', resolvedParams.id)
           .single();
 
@@ -68,18 +63,18 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
         }
 
         // 작성자 정보 가져오기
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('nickname')
           .eq('id', postData.user_id)
           .single();
 
+        if (profileError) {
+          console.error('Profile fetch error:', profileError);
+        }
+
         const formattedPost: Post = {
-          id: postData.id,
-          title: postData.title,
-          content: postData.content,
-          created_at: postData.created_at,
-          user_id: postData.user_id,
+          ...postData,
           author: {
             nickname: profileData?.nickname || '알 수 없음'
           }
@@ -90,7 +85,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
         // 댓글 목록 가져오기
         const { data: commentsData, error: commentsError } = await supabase
           .from('comments')
-          .select('*')
+          .select()
           .eq('post_id', resolvedParams.id)
           .order('created_at', { ascending: true });
 
@@ -113,7 +108,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
               author: {
                 nickname: commentProfileData?.nickname || '알 수 없음'
               }
-            };
+            } as Comment;
           })
         );
 
