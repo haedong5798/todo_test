@@ -96,6 +96,7 @@ export default function ProfilePage() {
 
     try {
       if (!user) throw new Error('사용자 정보가 없습니다.');
+      if (!user.email) throw new Error('이메일 정보가 없습니다.');
 
       // 현재 비밀번호 확인
       const { error: signInError } = await supabase.auth.signInWithPassword({
