@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -9,12 +11,12 @@ export default function NotFound() {
           요청하신 페이지를 찾을 수 없습니다. URL을 확인하시거나 홈으로 돌아가주세요.
         </p>
         <div className="text-center">
-          <a
+          <Link
             href="/"
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             홈으로 돌아가기
-          </a>
+          </Link>
         </div>
       </div>
     </div>
