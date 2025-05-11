@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { User } from '@supabase/supabase-js';
 
 interface Question {
   id: number;
@@ -19,7 +20,7 @@ interface Question {
 
 export default function QnA() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
