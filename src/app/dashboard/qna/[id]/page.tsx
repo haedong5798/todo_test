@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { User } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface Profile {
   nickname: string;
@@ -34,24 +35,15 @@ interface Answer {
   };
 }
 
-interface QuestionData {
-  id: number;
-  title: string;
-  content: string;
-  created_at: string;
-  user_id: string;
-  is_answered: boolean;
-  is_private: boolean;
-  profiles: Profile;
-}
-
-interface AnswerData {
+interface SupabaseAnswer {
   id: number;
   content: string;
   created_at: string;
   user_id: string;
   question_id: number;
-  profiles: Profile;
+  profiles: {
+    nickname: string;
+  };
 }
 
 export default function QuestionDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -148,7 +140,7 @@ export default function QuestionDetail({ params }: { params: Promise<{ id: strin
         }
 
         // 답변 데이터 구조 변환
-        const formattedAnswers: Answer[] = (answersData || []).map((answer: any) => ({
+        const formattedAnswers: Answer[] = (answersData || []).map((answer: SupabaseAnswer) => ({
           id: answer.id,
           content: answer.content,
           created_at: answer.created_at,
@@ -160,9 +152,13 @@ export default function QuestionDetail({ params }: { params: Promise<{ id: strin
         }));
         
         setAnswers(formattedAnswers);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error details:', error);
-        setError(error.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+        if (error instanceof Error) {
+          setError(error.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+        } else {
+          setError('데이터를 불러오는 중 오류가 발생했습니다.');
+        }
       } finally {
         setLoading(false);
       }
@@ -215,8 +211,14 @@ export default function QuestionDetail({ params }: { params: Promise<{ id: strin
       setAnswers(answersData || []);
       setNewAnswer('');
       setError(null);
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof PostgrestError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('답변 등록 중 오류가 발생했습니다.');
+      }
     }
   };
 

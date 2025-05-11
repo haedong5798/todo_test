@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -39,8 +42,14 @@ export default function ProfilePage() {
 
         if (profileError) throw profileError;
         setNickname(profile?.nickname || '');
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        if (error instanceof AuthError || error instanceof PostgrestError) {
+          setError(error.message);
+        } else if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('프로필 정보를 불러오는 중 오류가 발생했습니다.');
+        }
       } finally {
         setLoading(false);
       }
@@ -55,6 +64,8 @@ export default function ProfilePage() {
     setSuccess(null);
 
     try {
+      if (!user) throw new Error('사용자 정보가 없습니다.');
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ nickname })
@@ -62,8 +73,14 @@ export default function ProfilePage() {
 
       if (updateError) throw updateError;
       setSuccess('닉네임이 성공적으로 변경되었습니다.');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof PostgrestError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('닉네임 변경 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -78,6 +95,8 @@ export default function ProfilePage() {
     }
 
     try {
+      if (!user) throw new Error('사용자 정보가 없습니다.');
+
       // 현재 비밀번호 확인
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user.email,
@@ -100,8 +119,14 @@ export default function ProfilePage() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('비밀번호 변경 중 오류가 발생했습니다.');
+      }
     }
   };
 

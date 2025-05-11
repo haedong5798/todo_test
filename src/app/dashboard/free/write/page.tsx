@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { PostgrestError } from '@supabase/supabase-js';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function WritePost() {
   const router = useRouter();
@@ -34,8 +36,14 @@ export default function WritePost() {
       if (postError) throw postError;
 
       router.push('/dashboard/free');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof PostgrestError || error instanceof AuthError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('게시글 작성 중 오류가 발생했습니다.');
+      }
     } finally {
       setLoading(false);
     }

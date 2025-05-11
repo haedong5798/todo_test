@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { User } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface Post {
   id: number;
@@ -20,18 +20,12 @@ export default function FreeBoardPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        // 사용자 정보 가져오기
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-        setUser(user);
 
         // 게시글 목록 가져오기
         const { data: postsData, error: postsError } = await supabase
@@ -72,9 +66,15 @@ export default function FreeBoardPage() {
         );
 
         setPosts(postsWithProfiles);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error details:', error);
-        setError(error.message || '게시글을 불러오는 중 오류가 발생했습니다.');
+        if (error instanceof PostgrestError) {
+          setError(error.message);
+        } else if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('게시글을 불러오는 중 오류가 발생했습니다.');
+        }
       } finally {
         setLoading(false);
       }

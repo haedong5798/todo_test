@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 
 export default function Home() {
   const router = useRouter();
@@ -39,8 +41,14 @@ export default function Home() {
 
         router.push('/dashboard');
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof AuthError || error instanceof PostgrestError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('로그인 중 오류가 발생했습니다.');
+      }
     } finally {
       setLoading(false);
     }

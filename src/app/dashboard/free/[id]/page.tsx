@@ -4,6 +4,9 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { User } from '@supabase/supabase-js';
+import { AuthError } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface Post {
   id: number;
@@ -35,7 +38,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,9 +118,15 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
         );
 
         setComments(commentsWithProfiles);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error details:', error);
-        setError(error.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+        if (error instanceof AuthError || error instanceof PostgrestError) {
+          setError(error.message);
+        } else if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('데이터를 불러오는 중 오류가 발생했습니다.');
+        }
       } finally {
         setLoading(false);
       }
@@ -165,8 +174,14 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
 
       setComments([...comments, newCommentData]);
       setNewComment('');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof PostgrestError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('댓글 작성 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -182,8 +197,14 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
       if (error) throw error;
 
       router.push('/dashboard/free');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      if (error instanceof PostgrestError) {
+        setError(error.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('게시글 삭제 중 오류가 발생했습니다.');
+      }
     }
   };
 
