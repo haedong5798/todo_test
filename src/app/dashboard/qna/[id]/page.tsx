@@ -1,15 +1,10 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { User } from '@supabase/supabase-js';
 import { PostgrestError } from '@supabase/supabase-js';
-
-interface Profile {
-  nickname: string;
-}
 
 interface Question {
   id: number;
@@ -47,7 +42,6 @@ interface SupabaseAnswer {
 }
 
 export default function QuestionDetail({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
   const resolvedParams = use(params);
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);

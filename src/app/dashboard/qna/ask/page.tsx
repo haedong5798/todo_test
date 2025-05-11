@@ -37,8 +37,12 @@ export default function AskQuestion() {
       if (questionError) throw questionError;
 
       router.push('/dashboard/qna');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('알 수 없는 오류가 발생했습니다.');
+      }
     } finally {
       setLoading(false);
     }

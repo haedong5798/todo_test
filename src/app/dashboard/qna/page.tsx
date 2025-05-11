@@ -53,8 +53,12 @@ export default function QnA() {
           );
           setQuestions(filteredData);
         }
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('알 수 없는 오류가 발생했습니다.');
+        }
         console.error('Error fetching questions:', error);
       } finally {
         setLoading(false);
