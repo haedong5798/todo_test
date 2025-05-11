@@ -95,12 +95,18 @@ export default function ProfilePage() {
     }
 
     try {
-      if (!user) throw new Error('사용자 정보가 없습니다.');
-      if (!user.email) throw new Error('이메일 정보가 없습니다.');
+      if (!user) {
+        throw new Error('사용자 정보가 없습니다.');
+      }
+
+      const userEmail = user.email;
+      if (!userEmail) {
+        throw new Error('이메일 정보가 없습니다. 관리자에게 문의하세요.');
+      }
 
       // 현재 비밀번호 확인
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
+        email: userEmail,
         password: currentPassword,
       });
 
@@ -114,7 +120,9 @@ export default function ProfilePage() {
         password: newPassword
       });
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        throw updateError;
+      }
 
       setSuccess('비밀번호가 성공적으로 변경되었습니다.');
       setCurrentPassword('');
